@@ -10,6 +10,7 @@ Can include other derivations of sead word i.e. past tense, plural, single, acti
 Differences from the actual game : Q represents the qu block
 
 Scoring of words :
+
 | word-length | Points |
 |-------------|:------:|
 | 3, 4        | 1      |
