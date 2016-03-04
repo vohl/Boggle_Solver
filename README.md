@@ -4,9 +4,13 @@ Boggle Unity Project
 given an NxN grid that contains characters, write a solver fot the game of Boggle in c++
 
 Game of Boggle :
+
 Words are formed by sequentially adjacent characters, and unique blocks
+
 Words have to be at least 3 letters long
+
 Can include other derivations of sead word i.e. past tense, plural, single, active verd
+
 Differences from the actual game : Q represents the qu block
 
 Scoring of words :
