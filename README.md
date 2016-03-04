@@ -19,7 +19,8 @@ Scoring of words :
 | 7           | 5      |
 | 8+          | 11     |
 
-code given::
+code given:  
+```c++
 struct Results
 {
     // a pointer to a constant pointer to constant char
@@ -41,3 +42,4 @@ Results FindWords(const char* board, unsigned width, unsigned height); // << TOD
 // 'results' is identical to what was returned from FindWords
 void FreeWords(Results results); // << TODO
 void FreeDictionary(); // << TODO
+```
