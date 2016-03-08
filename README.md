@@ -13,6 +13,7 @@ No duplicate blocks in a single word
 NOTICE: The test sample showed answers that were made up of multiple blocks. My solution will not accept multiple blocks.  
 
 Scoring of words :  
+
 | word-length | Points |
 |-------------|:------:|
 | 3, 4        | 1      |

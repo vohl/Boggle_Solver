@@ -110,16 +110,17 @@ void RecursiveFind (Results * myResult, Trie_Node * node, const char * board, ve
 		}
 		// Malloc more memory and set temps_words to point to this
 		// new memory after freeing the old block. Make sure to copy old over to the new block
-		else
+		else if (resultSize == myResult->Count)
 		{
+			resultSize *= 2;
 			int old_size = (myResult->Count);
 			++(myResult->Count);
-			char** temp = (char **)malloc(myResult->Count*sizeof(char *));
+			char** temp = (char **)malloc(resultSize*sizeof(char *));
 			for (int j = 0; j < old_size; ++j)
 			{
 				temp[j] = tempWords[j];
 			}
-			temp[old_size]= (char *)malloc((node->Node_Size+1)*sizeof(char));
+			temp[old_size] = (char *)malloc((node->Node_Size+1)*sizeof(char));
 
 			for (int j = 0; j <= node->Node_Size; ++j)
 			{
@@ -130,6 +131,18 @@ void RecursiveFind (Results * myResult, Trie_Node * node, const char * board, ve
 			temp[old_size][node->Node_Size] = '1';
 			free(tempWords);
 			tempWords = temp;
+		}
+		else
+		{
+			int old_size = (myResult->Count);
+			++(myResult->Count);
+			tempWords[old_size] = (char *)malloc((node->Node_Size+1)*sizeof(char));
+
+			for (int j = 0; j <= node->Node_Size; ++j)
+			{
+				tempWords[old_size][j] = node->Word[j];
+			}
+			tempWords[old_size][node->Node_Size] = '1';
 		}
 	}
 
@@ -392,7 +405,7 @@ Results FindWords(const char* board, unsigned width, unsigned height)
 
 	// initializing the Results struct that I have to return
 	myResult = new Results;
-	resultSize = 0;
+	resultSize = 1;
 	Trie_Node * node = Head;
 	int size = width*height;
 	vector<bool> visited(size);
