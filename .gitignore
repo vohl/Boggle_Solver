@@ -3,4 +3,4 @@
 *.gcov
 RunBoggleSolver
 TestBoggleSolver
-.DS_Store
+*.DS_Store
