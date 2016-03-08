@@ -452,3 +452,8 @@ void FreeDictionary()
 	// calls function to recursively free Trie
 	DeleteTrieNodes(Head);
 }
+
+Trie_Node * GiveMeTheTrie ()
+{
+	return Head;
+}
