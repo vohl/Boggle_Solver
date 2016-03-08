@@ -11,32 +11,33 @@
 #define WORD_SIZE 20
 
 // Globals
-// Empty head of the trie. This pointer wil be set
+// Empty Head of the trie. This pointer wil be set
 // to wherever on the heap that the Dictionary is located
-Trie_node * head;
+Trie_Node * Head;
 
 // A pointer to an instance of Result. Will set this pointer
 // to the Result we build when solving, and return it.
-Results * my_result;
+Results * myResult;
+int resultSize;
 
 // A temp of the found words. This pointer is given to
 // the Results->Word
-char ** temp_words;
+char ** tempWords;
 
 using namespace std;
 
 /*
-	@param start is the head pointer that we are going
+	@param start is the Head pointer that we are going
 	to traverse and free.
 */
-void Delete_Trie_Node (Trie_node * start)
+void DeleteTrieNodes (Trie_Node * start)
 {
 	// Recursively free every child node that has been allocated
 	for (int i = 0; i < ALPHA_SIZE; ++i)
 	{
-		if (start->children[i] != NULL)
+		if (start->Children[i] != NULL)
 		{
-			Delete_Trie_Node(start->children[i]);
+			DeleteTrieNodes(start->Children[i]);
 		}
 		++i;
 	}
@@ -49,7 +50,7 @@ void Delete_Trie_Node (Trie_node * start)
 	@param size is the size of a word that was found durring the search
 	@return the score for a word of that size
 */
-int size_To_Score (int size)
+int SizeToScore (int size)
 {
 	// Used a switch table to determine the score based on the size
 	switch (size)
@@ -70,7 +71,7 @@ int size_To_Score (int size)
 
 /*
 	Recursive auxillary function for the board to find words
-	@param my_result is the expected Results struct
+	@param myResult is the expected Results struct
 	@param node is place we are in the dictionary that corresponds
 	to the order of blocks we have looked at
 	@param board is a single c-string that represents the problem
@@ -80,55 +81,55 @@ int size_To_Score (int size)
 	@param width  of the board
 	@param height of the board
 */
-void recursiveFind (Results * my_result, Trie_node * node, const char * board, vector<bool>& visited, int i, unsigned width, unsigned height)
+void RecursiveFind (Results * myResult, Trie_Node * node, const char * board, vector<bool>& visited, int i, unsigned width, unsigned height)
 {
 	// This if loop defines the case where the the node
 	// for the trie has a word that we havent made yet for this istance of the game
-	if (node->size > 0 && node->visited == false)
+	if (node->Node_Size > 0 && node->Visited == false)
 	{
 		// Sets the node to visited for future encounters, and records the score
-		node->visited = true;
-		my_result->Score += size_To_Score(node->size);
+		node->Visited = true;
+		myResult->Score += SizeToScore(node->Node_Size);
 
 		// if this is the first word, allocate room for it
-		// on the heap and set the temp_words to point at it
-		if (my_result->Count == 0)
+		// on the heap and set the tempWords to point at it
+		if (myResult->Count == 0)
 		{
-			++(my_result->Count);
+			++(myResult->Count);
 			char** temp = (char **)malloc(sizeof(char *));
-			temp[0] = (char *)malloc((node->size+1)*sizeof(char));
+			temp[0] = (char *)malloc((node->Node_Size+1)*sizeof(char));
 
-			for (int j = 0; j < node->size; ++j)
+			for (int j = 0; j < node->Node_Size; ++j)
 			{
-				temp[0][j] = node->word[j];
+				temp[0][j] = node->Word[j];
 			}
 
 			// non alpha terminating character
-			temp[0][node->size] = '1';
-			temp_words = temp;
+			temp[0][node->Node_Size] = '1';
+			tempWords = temp;
 		}
 		// Malloc more memory and set temps_words to point to this
 		// new memory after freeing the old block. Make sure to copy old over to the new block
 		else
 		{
-			int old_size = (my_result->Count);
-			++(my_result->Count);
-			char** temp = (char **)malloc(my_result->Count*sizeof(char *));
+			int old_size = (myResult->Count);
+			++(myResult->Count);
+			char** temp = (char **)malloc(myResult->Count*sizeof(char *));
 			for (int j = 0; j < old_size; ++j)
 			{
-				temp[j] = temp_words[j];
+				temp[j] = tempWords[j];
 			}
-			temp[old_size]= (char *)malloc((node->size+1)*sizeof(char));
+			temp[old_size]= (char *)malloc((node->Node_Size+1)*sizeof(char));
 
-			for (int j = 0; j <= node->size; ++j)
+			for (int j = 0; j <= node->Node_Size; ++j)
 			{
-				temp[old_size][j] = node->word[j];
+				temp[old_size][j] = node->Word[j];
 			}
 
 			// non alpha terminating character
-			temp[old_size][node->size] = '1';
-			free(temp_words);
-			temp_words = temp;
+			temp[old_size][node->Node_Size] = '1';
+			free(tempWords);
+			tempWords = temp;
 		}
 	}
 
@@ -140,13 +141,13 @@ void recursiveFind (Results * my_result, Trie_node * node, const char * board, v
 		if (i != 0)
 		{
 			visited[i-1] = true;
-			recursiveFind(my_result, node->children[board[i-1] - 97], board, visited, i-1, width, height);
+			RecursiveFind(myResult, node->Children[board[i-1] - 97], board, visited, i-1, width, height);
 			visited[i-1] = false;
 		}
 		if (i != size-1)
 		{
 			visited[i+1] = true;
-			recursiveFind(my_result, node->children[board[i+1] - 97], board, visited, i+1, width, height);
+			RecursiveFind(myResult, node->Children[board[i+1] - 97], board, visited, i+1, width, height);
 			visited[i+1] = false;
 		}
 	}
@@ -157,57 +158,57 @@ void recursiveFind (Results * my_result, Trie_node * node, const char * board, v
 		// The block is not on the left side, it can move leftwards
 		if (i%width != 0)
 		{
-			if (node->children[board[i-1] - 97] != NULL && visited[i-1] == false)
+			if (node->Children[board[i-1] - 97] != NULL && visited[i-1] == false)
 			{
 				visited[i-1] = true;
-				recursiveFind(my_result, node->children[board[i-1] - 97], board, visited, i-1, width, height);
+				RecursiveFind(myResult, node->Children[board[i-1] - 97], board, visited, i-1, width, height);
 				visited[i-1] = false;
 			}
-			if (node->children[board[i-width-1] - 97] != NULL && visited[i-width-1] == false)
+			if (node->Children[board[i-width-1] - 97] != NULL && visited[i-width-1] == false)
 			{
 				visited[i-width-1] = true;
-				recursiveFind(my_result, node->children[board[i-width-1] - 97], board, visited, i-width-1, width, height);
+				RecursiveFind(myResult, node->Children[board[i-width-1] - 97], board, visited, i-width-1, width, height);
 				visited[i-width-1] = false;
 			}
-			if (node->children[board[i+width-1] - 97] != NULL && visited[i+width-1] == false)
+			if (node->Children[board[i+width-1] - 97] != NULL && visited[i+width-1] == false)
 			{
 				visited[i+width-1] = true;
-				recursiveFind(my_result, node->children[board[i+width-1] - 97], board, visited, i+width-1, width, height);
+				RecursiveFind(myResult, node->Children[board[i+width-1] - 97], board, visited, i+width-1, width, height);
 				visited[i+width-1] = false;
 			}
 		}
 		// The block is not on the right side, it can move rightwards
 		if (i%width != width-1)
 		{
-			if (node->children[board[i+1] - 97] != NULL && visited[i+1] == false)
+			if (node->Children[board[i+1] - 97] != NULL && visited[i+1] == false)
 			{
 				visited[i+1] = true;
-				recursiveFind(my_result, node->children[board[i+1] - 97], board, visited, i+1, width, height);
+				RecursiveFind(myResult, node->Children[board[i+1] - 97], board, visited, i+1, width, height);
 				visited[i+1] = false;
 			}
-			if (node->children[board[i-width+1] - 97] != NULL && visited[i-width+1] == false)
+			if (node->Children[board[i-width+1] - 97] != NULL && visited[i-width+1] == false)
 			{
 				visited[i-width+1] = true;
-				recursiveFind(my_result, node->children[board[i-width+1] - 97], board, visited, i-width+1, width, height);
+				RecursiveFind(myResult, node->Children[board[i-width+1] - 97], board, visited, i-width+1, width, height);
 				visited[i-width+1] = false;
 			}
-			if (node->children[board[i+width+1] - 97] != NULL && visited[i+width+1] == false)
+			if (node->Children[board[i+width+1] - 97] != NULL && visited[i+width+1] == false)
 			{
 				visited[i+width+1] = true;
-				recursiveFind(my_result, node->children[board[i+width+1] - 97], board, visited, i+width+1, width, height);
+				RecursiveFind(myResult, node->Children[board[i+width+1] - 97], board, visited, i+width+1, width, height);
 				visited[i+width+1] = false;
 			}
 		}
-		if (node->children[board[i-width] - 97] != NULL && visited[i-width] == false)
+		if (node->Children[board[i-width] - 97] != NULL && visited[i-width] == false)
 		{
 			visited[i-width] = true;
-			recursiveFind(my_result, node->children[board[i-width] - 97], board, visited, i-width, width, height);
+			RecursiveFind(myResult, node->Children[board[i-width] - 97], board, visited, i-width, width, height);
 			visited[i-width] = false;
 		}
-		if (node->children[board[i+width] - 97] != NULL && visited[i+width] == false)
+		if (node->Children[board[i+width] - 97] != NULL && visited[i+width] == false)
 		{
 			visited[i+width] = true;
-			recursiveFind(my_result, node->children[board[i+width] - 97], board, visited, i+width, width, height);
+			RecursiveFind(myResult, node->Children[board[i+width] - 97], board, visited, i+width, width, height);
 			visited[i+width] = false;
 		}
 	}
@@ -216,38 +217,38 @@ void recursiveFind (Results * my_result, Trie_node * node, const char * board, v
 	{
 		if (i%width != 0)
 		{
-			if (node->children[board[i-1] - 97] != NULL && visited[i-1] == false)
+			if (node->Children[board[i-1] - 97] != NULL && visited[i-1] == false)
 			{
 				visited[i-1] = true;
-				recursiveFind(my_result, node->children[board[i-1] - 97], board, visited, i-1, width, height);
+				RecursiveFind(myResult, node->Children[board[i-1] - 97], board, visited, i-1, width, height);
 				visited[i-1] = false;
 			}
-			if (node->children[board[i-width-1] - 97] != NULL && visited[i-width-1] == false)
+			if (node->Children[board[i-width-1] - 97] != NULL && visited[i-width-1] == false)
 			{
 				visited[i-width-1] = true;
-				recursiveFind(my_result, node->children[board[i-width-1] - 97], board, visited, i-width-1, width, height);
+				RecursiveFind(myResult, node->Children[board[i-width-1] - 97], board, visited, i-width-1, width, height);
 				visited[i-width-1] = false;
 			}
 		}
 		if (i%width != width-1)
 		{
-			if (node->children[board[i+1] - 97] != NULL && visited[i+1] == false)
+			if (node->Children[board[i+1] - 97] != NULL && visited[i+1] == false)
 			{
 				visited[i+1] = true;
-				recursiveFind(my_result, node->children[board[i+1] - 97], board, visited, i+1, width, height);
+				RecursiveFind(myResult, node->Children[board[i+1] - 97], board, visited, i+1, width, height);
 				visited[i+1] = false;
 			}
-			if (node->children[board[i-width+1] - 97] != NULL && visited[i-width+1] == false)
+			if (node->Children[board[i-width+1] - 97] != NULL && visited[i-width+1] == false)
 			{
 				visited[i-width+1] = true;
-				recursiveFind(my_result, node->children[board[i-width+1] - 97], board, visited, i-width+1, width, height);
+				RecursiveFind(myResult, node->Children[board[i-width+1] - 97], board, visited, i-width+1, width, height);
 				visited[i-width+1] = false;
 			}
 		}
-		if (node->children[board[i-width] - 97] != NULL && visited[i-width] == false)
+		if (node->Children[board[i-width] - 97] != NULL && visited[i-width] == false)
 		{
 			visited[i-width] = true;
-			recursiveFind(my_result, node->children[board[i-width] - 97], board, visited, i-width, width, height);
+			RecursiveFind(myResult, node->Children[board[i-width] - 97], board, visited, i-width, width, height);
 			visited[i-width] = false;
 		}
 	}
@@ -256,38 +257,38 @@ void recursiveFind (Results * my_result, Trie_node * node, const char * board, v
 	{
 		if (i%width != 0)
 		{
-			if (node->children[board[i-1] - 97] != NULL && visited[i-1] == false)
+			if (node->Children[board[i-1] - 97] != NULL && visited[i-1] == false)
 			{
 				visited[i-1] = true;
-				recursiveFind(my_result, node->children[board[i-1] - 97], board, visited, i-1, width, height);
+				RecursiveFind(myResult, node->Children[board[i-1] - 97], board, visited, i-1, width, height);
 				visited[i-1] = false;
 			}
-			if (node->children[board[i+width-1] - 97] != NULL && visited[i+width-1] == false)
+			if (node->Children[board[i+width-1] - 97] != NULL && visited[i+width-1] == false)
 			{
 				visited[i+width-1] = true;
-				recursiveFind(my_result, node->children[board[i+width-1] - 97], board, visited, i+width-1, width, height);
+				RecursiveFind(myResult, node->Children[board[i+width-1] - 97], board, visited, i+width-1, width, height);
 				visited[i+width-1] = false;
 			}
 		}
 		if (i%width != width-1)
 		{
-			if (node->children[board[i+1] - 97] != NULL && visited[i+1] == false)
+			if (node->Children[board[i+1] - 97] != NULL && visited[i+1] == false)
 			{
 				visited[i+1] = true;
-				recursiveFind(my_result, node->children[board[i+1] - 97], board, visited, i+1, width, height);
+				RecursiveFind(myResult, node->Children[board[i+1] - 97], board, visited, i+1, width, height);
 				visited[i+1] = false;
 			}
-			if (node->children[board[i+width+1] - 97] != NULL && visited[i+width+1] == false)
+			if (node->Children[board[i+width+1] - 97] != NULL && visited[i+width+1] == false)
 			{
 				visited[i+width+1] = true;
-				recursiveFind(my_result, node->children[board[i+width+1] - 97], board, visited, i+width+1, width, height);
+				RecursiveFind(myResult, node->Children[board[i+width+1] - 97], board, visited, i+width+1, width, height);
 				visited[i+width+1] = false;
 			}
 		}
-		if (node->children[board[i+width] - 97] != NULL && visited[i+width] == false)
+		if (node->Children[board[i+width] - 97] != NULL && visited[i+width] == false)
 		{
 			visited[i+width] = true;
-			recursiveFind(my_result, node->children[board[i+width] - 97], board, visited, i+width, width, height);
+			RecursiveFind(myResult, node->Children[board[i+width] - 97], board, visited, i+width, width, height);
 			visited[i+width] = false;
 		}
 	}
@@ -300,8 +301,8 @@ void recursiveFind (Results * my_result, Trie_node * node, const char * board, v
 // input dictionary is a file with one word per line
 void LoadDictionary(const char* path)
 {
-	// creating the Trie_node
-	head = new Trie_node;
+	// creating the Trie_Node
+	Head = new Trie_Node;
 
 	// Pointer to the dictionary file
 	FILE * dictF;
@@ -309,11 +310,11 @@ void LoadDictionary(const char* path)
 	int i = 0;
 	// open the file and assign it to dictF
 	dictF = fopen(path, "r");
-	Trie_node * node = head;
+	Trie_Node * node = Head;
 
 	// buffer is used to create the word in the dictionary
 	// that a node will point at
-	// value will be copied over into node->word
+	// value will be copied over into node->Word
 	char buffer[WORD_SIZE];
 
 	// if the file is there it should not be NULL
@@ -324,41 +325,39 @@ void LoadDictionary(const char* path)
 		{
 			c = fgetc(dictF);
 
-			// if this character sequence has not been seen allocate the new Trie_node
-			if ((char)c != '\n' && node->children[c - 97] == NULL)
+			// if this character sequence has not been seen allocate the new Trie_Node
+			if ((char)c != '\n' && node->Children[c - 97] == NULL)
 			{
 				buffer[i] = (char)c;
-				node->children[c - 97] = new Trie_node;
-				(node->children[c - 97])->parent = node;
-				node = node->children[c - 97];
+				node->Children[c - 97] = new Trie_Node;
+				(node->Children[c - 97])->Parent = node;
+				node = node->Children[c - 97];
 				++i;
 			}
-			// we have seen this sequence, so just travers the trie_node to the next node
+			// we have seen this sequence, so just travers the Trie_Node to the next node
 			else if ((char)c != '\n')
 			{
 				buffer[i] = (char)c;
-				node = node->children[c - 97];
+				node = node->Children[c - 97];
 				++i;
 			}
 			// this else if will run if the new line character is met
 			// we'll store the buffer at the node we are at
 			else if (i >= 3)
 			{
-				node->size = i;
+				node->Node_Size = i;
 				for (int j = 0; j < i; ++j)
 				{
-					node->word[j] = buffer[j];
-					//cout << node->word[j];
+					node->Word[j] = buffer[j];
 				}
-				//cout << endl;
-				node = head;
+				node = Head;
 				i = 0;
 			}
 			// only runs if a word less then three is seen
 			// these are woth 0 points, dont need to add them into the trie
 			else
 			{
-				node = head;
+				node = Head;
 				i = 0;
 			}
 		}
@@ -392,27 +391,28 @@ Results FindWords(const char* board, unsigned width, unsigned height)
 	}
 
 	// initializing the Results struct that I have to return
-	my_result = new Results;
-	Trie_node * node = head;
+	myResult = new Results;
+	resultSize = 0;
+	Trie_Node * node = Head;
 	int size = width*height;
 	vector<bool> visited(size);
 
 	// for each board tile recursively find a word starting on that tile
 	for (int i = 0; i < size; ++i)
 	{
-		if (node->children[board[i] - 97] != NULL)
+		if (node->Children[board[i] - 97] != NULL)
 		{
 			visited[i] = true;
-			recursiveFind(my_result, node->children[board[i] - 97], board, visited, i, width, height);
+			RecursiveFind(myResult, node->Children[board[i] - 97], board, visited, i, width, height);
 			visited[i] = false;
 		}
 	}
 
 	// sets Results->Words to the string of arrays
-	my_result->Words = temp_words;
+	myResult->Words = tempWords;
 
 	// return the struct
-	return *my_result;
+	return *myResult;
 }
 
 /*
@@ -425,17 +425,17 @@ void FreeWords(Results results)
 	// free each inner pointer
 	for (int i = 0; i < s; ++i)
 	{
-		free(temp_words[i]);
+		free(tempWords[i]);
 	}
 	// Frees the top level pointer
-	free(temp_words);
+	free(tempWords);
 
 	// finally delete the Results struct
-	delete [] my_result;
+	delete [] myResult;
 }
 
 void FreeDictionary()
 {
 	// calls function to recursively free Trie
-	Delete_Trie_Node(head);
+	DeleteTrieNodes(Head);
 }

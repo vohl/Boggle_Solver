@@ -25,25 +25,25 @@ struct Results
 // Main data structure to create dictionary from. Contains a
 // boolean to show that this node has been visited as well as the
 // the word associated with that node. Size of the word, and a pointer to
-// the parent node and it's childrens
+// the Parent node and it's Childrens
 // Built from the Trie concept.
-struct Trie_node
+struct Trie_Node
 {
-	bool visited;
-	char word[WORD_SIZE];
-	int size;
-	struct Trie_node * parent;
-	struct Trie_node * children[ALPHA_SIZE];
+	bool Visited;
+	char Word[WORD_SIZE];
+	int Node_Size;
+	struct Trie_Node * Parent;
+	struct Trie_Node * Children[ALPHA_SIZE];
 
-	// Trie_node struct constructor
-	Trie_node ()
+	// Trie_Node struct constructor
+	Trie_Node ()
 	{
-		visited = false;
-		size = 0;
-		parent = 0;
+		Visited = false;
+		Node_Size = 0;
+		Parent = 0;
 		for (int i = 0; i < ALPHA_SIZE; ++i)
 		{
-			children[i] = 0;
+			Children[i] = 0;
 		}
 	}
 };
