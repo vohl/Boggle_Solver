@@ -6,7 +6,7 @@ clean:
 	rm -f *.gcda
 	rm -f *.gcno
 	rm -f *.gcov
-	rm -F *.DS_Store
+	rm -f *.DS_Store
 	rm -f RunBoggleSolver
 	rm -f TestBoggleSolver
 	rm -f TestBoggleSolver.out
